@@ -1,10 +1,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-/* INCLUDES MARIA */
+/* INCLUDES MARIA
 #include <GL/glut.h>
-#include <GL/gl.h>	
-#include <GL/glu.h>	
+#include <GL/gl.h>
+#include <GL/glu.h>
+*/
+
+/* includes jorge */
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
 
 #include "RgbImage.h"
 
@@ -76,9 +82,9 @@ void criaDefineTexturas()
  	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
- 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
- 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
- 	imag.LoadBmpFile("paredep.bmp");
+ 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+ 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+ 	imag.LoadBmpFile("ld.bmp");
  	glTexImage2D(GL_TEXTURE_2D, 0, 3,
  	imag.GetNumCols(),
 	imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
@@ -90,9 +96,9 @@ void criaDefineTexturas()
  	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
- 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
- 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
- 	imag.LoadBmpFile("le.bmp");
+ 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+ 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+ 	imag.LoadBmpFile("paredep.bmp");
  	glTexImage2D(GL_TEXTURE_2D, 0, 3,
  	imag.GetNumCols(),
 	imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
@@ -104,8 +110,8 @@ void criaDefineTexturas()
  	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
- 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
- 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+ 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+ 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
  	imag.LoadBmpFile("ld.bmp");
  	glTexImage2D(GL_TEXTURE_2D, 0, 3,
  	imag.GetNumCols(),
@@ -152,35 +158,35 @@ void drawScene(){
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Parede
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D,texture[4]);
-	glPushMatrix();	
+	glPushMatrix();
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f,0.0f); glVertex3i( 0,  0, xC );
-			glTexCoord2f(10.0f,0.0f); glVertex3i( xC, 0, xC );
-			glTexCoord2f(10.0f,10.0f); glVertex3i( xC, xC, xC);
-			glTexCoord2f(0.0f,10.0f); glVertex3i( 0,  xC,  xC);
+			glTexCoord2f(1.0f,0.0f); glVertex3i( xC, 0, xC );
+			glTexCoord2f(1.0f,1.0f); glVertex3i( xC, xC, xC);
+			glTexCoord2f(0.0f,1.0f); glVertex3i( 0,  xC,  xC);
 		glEnd();
 	glPopMatrix();
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Parede 
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Parede
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D,texture[2]);
 	glPushMatrix();
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f,0.0f); glVertex3i( 0,  0, 0 );
-			glTexCoord2f(10.0f,0.0f); glVertex3i( xC, 0, 0 );
-			glTexCoord2f(10.0f,10.0f); glVertex3i( xC, xC, 0);
-			glTexCoord2f(0.0f,10.0f); glVertex3i( 0,  xC,  0);
+			glTexCoord2f(1.0f,0.0f); glVertex3i( xC, 0, 0 );
+			glTexCoord2f(1.0f,1.0f); glVertex3i( xC, xC, 0);
+			glTexCoord2f(0.0f,1.0f); glVertex3i( 0,  xC,  0);
 		glEnd();
 	glPopMatrix();
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Parede 
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Parede
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D,texture[3]);
 	glPushMatrix();
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f,0.0f); glVertex3i( 0,  0, 0 );
-			glTexCoord2f(10.0f,0.0f); glVertex3i( 0, 0, xC );
-			glTexCoord2f(10.0f,10.0f); glVertex3i( 0, xC, xC);
-			glTexCoord2f(0.0f,10.0f); glVertex3i( 0,  xC,  0);
+			glTexCoord2f(1.0f,0.0f); glVertex3i( 0, 0, xC );
+			glTexCoord2f(1.0f,1.0f); glVertex3i( 0, xC, xC);
+			glTexCoord2f(0.0f,1.0f); glVertex3i( 0,  xC,  0);
 		glEnd();
 	glPopMatrix();
 
