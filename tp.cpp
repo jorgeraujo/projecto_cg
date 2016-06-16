@@ -30,7 +30,7 @@
 
 //------------------------------------------------------------ Sistema Coordenadas
 GLfloat   xC=20.0, yC=20.0, zC=30.0;
-GLint     wScreen=800, hScreen=600;
+GLfloat     wScreen=800.0, hScreen=600.0;
 
 
 //------------------------------------------------------------ Observador
@@ -206,7 +206,7 @@ void display(void){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	switch (defineProj) {
-		case 1: gluPerspective(88.0, wScreen/hScreen, 0.1, zC); break;
+		case 1: gluPerspective(110, wScreen/hScreen, 0.5, zC); break;
 		default: glOrtho (-xC,xC,-yC,yC,-zC,zC);
 			break;
 	}
@@ -214,8 +214,11 @@ void display(void){
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[ Modelo+View(camera/observador) ]
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(obsP[0], obsP[1], obsP[2], 0,0,0, 0, 1, 0);
-
+	/*
+	glRotatef(-20,0,1,0);
+	glRotatef(2,0,0,1);
+	*/
+	gluLookAt(25, 5, 10,-10,-10,10, 0, 1, 0);
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[ Objectos ]
 	drawScene();
 

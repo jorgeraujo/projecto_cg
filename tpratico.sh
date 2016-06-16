@@ -1,2 +1,2 @@
-g++ -o tp tp.cpp RgbImage.cpp -lGL -lGLU -lglut
+g++ -o tp tp.cpp RgbImage.cpp -framework GLUT -framework OpenGl 
 ./tp
