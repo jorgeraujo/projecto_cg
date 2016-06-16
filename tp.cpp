@@ -36,20 +36,8 @@ GLfloat     wScreen=800.0, hScreen=600.0;
 //------------------------------------------------------------ Observador
 GLint    defineView=0;
 GLint    defineProj=1;
-GLfloat  raiox   = 30;
-GLfloat  raioz   = 10;
-GLfloat  angulo = 0.35*PI;
-GLfloat  obsP[] = {raiox*cos(angulo), 10, raioz*sin(angulo)};
-GLfloat  incy   = 0.5;
-GLfloat  inca   = 0.03;
-
-//------------------------------------------------------------ Texturas
-GLint    repete=2;
-GLfloat  rr=1;
-GLint    maxR  =20;
-GLint    numFrames =5; //numero de imagens a colocar em loop na tela
-GLint		 curr_frame = 5;
-GLint    msec=100;					//.. definicao do timer (actualizacao)
+GLfloat  obsP[4] ;
+GLfloat  inc   = 0.5;
 
 //================================================================================
 //=========================================================================== INIT
@@ -234,18 +222,24 @@ void display(void){
 
 	//cubo 1
 	glPushMatrix();
-	glColor3f(0,1,0);
-	glTranslatef(19.75,1,5);
+	glColor4f(LARANJA);
+	glTranslatef(19.75,1,5+obsP[1]-obsP[2]);
 	draw_cube();
 	glPopMatrix();
 
 	//cubo 2
-	glColor3f(0,0,1);
 	glPushMatrix();
-	glTranslatef(19.75,1,15);
+	glColor4f(AMARELO);
+	glTranslatef(19.75,1,15+obsP[3]-obsP[4]);
 	draw_cube();
 	glPopMatrix();
 
+	//bola
+	glPushMatrix();
+	glColor4f(BLACK);
+	glTranslatef(17,1,10);
+	glutSolidSphere(0.25,20,20);
+	glPopMatrix();
 	drawScene();
 
 
@@ -254,16 +248,6 @@ void display(void){
 }
 
 
-void Timer(int value)
-{
-	//TODO: mudar imagem na tela
-	if(curr_frame == 1){
-		curr_frame = numFrames;
-	}
-  curr_frame--;
-	glutPostRedisplay();
-	glutTimerFunc(msec,Timer, 1);
-}
 
 //======================================================= EVENTOS
 void keyboard(unsigned char key, int x, int y){
@@ -271,43 +255,52 @@ void keyboard(unsigned char key, int x, int y){
 	switch (key) {
 
 	//--------------------------- Textura no papel de parede
-	case 't':
-	case 'T':
+	case 'A':
+	case 'a':
+	if(5+obsP[1]-obsP[2] <= xC-2 )
+	{
+		obsP[1] = obsP[1] + inc;
+	}
 		glutPostRedisplay();
 		break;
 	//--------------------------- Projeccao
-	case 'q':
-	case 'Q':
-		defineProj=(defineProj+1)%2;
+	case 'd':
+	case 'D':
+	if(5+obsP[1]-obsP[2] >= 2)
+	{
+		obsP[2] = obsP[2]+inc;
+	}
 		glutPostRedisplay();
 		break;
 	//--------------------------- Escape
+
+	case 'j':
+	case 'J':
+		if(15+obsP[3]-obsP[4] <= xC-2)
+		{
+			obsP[3] = obsP[3] + inc;
+		}
+		glutPostRedisplay();
+		break;
+
+//--------------------------- Escape
+
+case 'L':
+case 'l':
+if(15+obsP[3]-obsP[4] >= 2)
+{
+	obsP[4] = obsP[4] + inc;
+}
+	glutPostRedisplay();
+	break;
+
 	case 27:
 		exit(0);
 		break;
   }
-}
-
-void teclasNotAscii(int key, int x, int y){
-    if(key == GLUT_KEY_UP)
-		obsP[1]=obsP[1]+incy;
-	if(key == GLUT_KEY_DOWN)
-		obsP[1]=obsP[1]-incy;
-	if(key == GLUT_KEY_LEFT)
-		angulo=angulo+inca;
-	if(key == GLUT_KEY_RIGHT)
-		angulo=angulo-inca;
-
-	if (obsP[1]> yC)
-		obsP[1]= yC;
-    if (obsP[1]<-yC)
-		obsP[1]=-yC;
-    obsP[0] = raiox*cos(angulo);
-	obsP[2] = raioz*sin(angulo);
 
 	glutPostRedisplay();
 }
-
 //======================================================= MAIN
 int main(int argc, char** argv){
 
@@ -319,11 +312,10 @@ int main(int argc, char** argv){
 
 	init();
 
-	glutSpecialFunc(teclasNotAscii);
+
 	glutDisplayFunc(display);
 	glutReshapeFunc(resizeWindow);
 	glutKeyboardFunc(keyboard);
-	glutTimerFunc(msec, Timer, 1);
 
 	glutMainLoop();
 
