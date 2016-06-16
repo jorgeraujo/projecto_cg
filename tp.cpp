@@ -139,6 +139,14 @@ void resizeWindow(GLsizei w, GLsizei h)
 	glutPostRedisplay();
 }
 
+void draw_cube(void)
+{
+	glPushMatrix();
+   glutSolidCube (0.5);
+	 glPopMatrix();
+
+}
+
 
 void drawScene(){
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Chao y=0 com textura
@@ -166,6 +174,7 @@ void drawScene(){
 			glTexCoord2f(0.0f,1.0f); glVertex3i( 0,  xC,  xC);
 		glEnd();
 	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Parede
 	glEnable(GL_TEXTURE_2D);
@@ -178,6 +187,7 @@ void drawScene(){
 			glTexCoord2f(0.0f,1.0f); glVertex3i( 0,  xC,  0);
 		glEnd();
 	glPopMatrix();
+		glDisable(GL_TEXTURE_2D);
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Parede
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D,texture[3]);
@@ -189,6 +199,7 @@ void drawScene(){
 			glTexCoord2f(0.0f,1.0f); glVertex3i( 0,  xC,  0);
 		glEnd();
 	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 
 	//*****************************************************
 
@@ -218,9 +229,25 @@ void display(void){
 	glRotatef(-20,0,1,0);
 	glRotatef(2,0,0,1);
 	*/
-	gluLookAt(25, 5, 10,-10,-10,10, 0, 1, 0);
+	gluLookAt(21, 7, 10,-10,-10,10, 0, 1, 0);
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[ Objectos ]
+
+	//cubo 1
+	glPushMatrix();
+	glColor3f(0,1,0);
+	glTranslatef(19.75,1,5);
+	draw_cube();
+	glPopMatrix();
+
+	//cubo 2
+	glColor3f(0,0,1);
+	glPushMatrix();
+	glTranslatef(19.75,1,15);
+	draw_cube();
+	glPopMatrix();
+
 	drawScene();
+
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Actualizacao
 	glutSwapBuffers();
