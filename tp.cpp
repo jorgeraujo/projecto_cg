@@ -31,6 +31,9 @@
 //------------------------------------------------------------ Sistema Coordenadas
 GLfloat   xC=20.0, yC=20.0, zC=30.0;
 GLfloat     wScreen=800.0, hScreen=600.0;
+GLfloat     speed = 0.1;
+GLfloat    ball_position = 17;
+GLint      hit = 0;
 
 
 //------------------------------------------------------------ Observador
@@ -193,6 +196,28 @@ void drawScene(){
 
 }
 
+
+
+void ball_movement()
+{
+
+	if(ball_position <= 0)
+	{
+		hit = 1;
+		printf("BATEU\n");
+	}
+
+	if(hit==0)
+	{
+		ball_position -= speed;
+		glutPostRedisplay();
+	}
+	else if( hit == 1 ){
+		ball_position += speed;
+		glutPostRedisplay();
+	}
+}
+
 void display(void){
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[ Apagar ]
@@ -237,15 +262,20 @@ void display(void){
 	//bola
 	glPushMatrix();
 	glColor4f(BLACK);
-	glTranslatef(17,1,10);
+	glTranslatef(ball_position,0.5,10);
 	glutSolidSphere(0.25,20,20);
 	glPopMatrix();
 	drawScene();
+
+	ball_movement();
 
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Actualizacao
 	glutSwapBuffers();
 }
+
+
+
 
 
 
