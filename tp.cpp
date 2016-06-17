@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+
 // INCLUDES MARIA
 #include <GL/glut.h>
 #include <GL/gl.h>
@@ -22,7 +23,7 @@
 #define WHITE    1.0, 1.0, 1.0, 1.0
 #define BLACK    0.0, 0.0, 0.0, 1.0
 #define GRAY     0.9, 0.92, 0.29, 1.0
-#define PI		 3.14159
+#define PI			 3.14159
 
 // Sistema Coordenadas
 GLfloat   xC=20.0, yC=20.0, zC=30.0;
@@ -37,17 +38,38 @@ GLint    defineView=0;
 GLint    defineProj=1;
 GLfloat  obsP[4] ;
 
+//iluminacao
+int light=1;
+GLfloat corLuzA[]={1.0f, 1.0f, 1.0f, 1.0f};
+GLfloat corLuzD[]={1.f, 1.0f, 1.0f, 1.0f};
+GLfloat corLuzE[]={0.2f, 0.2f, 0.2f, 1.0f};
+GLfloat posicaoLuz[] = {0.0, 20.0, 0.0, 1.0};
+GLfloat direcaoLuz[]={0.0f,1.0f,0.0f};
+GLfloat concentracaoLuz=20.0;
+GLfloat anguloLuz=90.0;
+
+GLfloat yellowRubberDiffuse[]={0.5,0.5,0.4,1};
+GLfloat yellowRubberSpecular[]={0.7,0.7,0.04};
+GLfloat yellowRubberShininess=.078125*128;
+
+GLfloat rubyDiffuse[]={0.61424,0.04136,0.04136,1};
+GLfloat rubySpecular[]={0.727811,0.626959,0.626959};
+GLfloat rubyShininess=0.6*128;
+
+GLfloat pretoDiffuse[]={0.01,0.01,0.01,1};
+GLfloat pretoSpecular[]={0.01,0.01,0.01};
+GLfloat pretoShininess=0;
+
 // Texturas
 GLuint  texture[10];
 GLuint  tex;
 RgbImage imag;
 
-
 void criaDefineTexturas(){
 	// Chao y=0
 	glGenTextures(1, &texture[1]);
 	glBindTexture(GL_TEXTURE_2D, texture[1]);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -58,10 +80,10 @@ void criaDefineTexturas(){
 		imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
 		imag.ImageData());
 
-	// Parede principal
+	// Parede lado
 	glGenTextures(1, &texture[2]);
  	glBindTexture(GL_TEXTURE_2D, texture[2]);
- 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+ 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -75,7 +97,7 @@ void criaDefineTexturas(){
  	// Parede lado esquerdo
 	glGenTextures(1, &texture[3]);
  	glBindTexture(GL_TEXTURE_2D, texture[3]);
- 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+ 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -89,7 +111,7 @@ void criaDefineTexturas(){
 	// Parede lado direito
 	glGenTextures(1, &texture[4]);
  	glBindTexture(GL_TEXTURE_2D, texture[4]);
- 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+ 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
  	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -101,12 +123,35 @@ void criaDefineTexturas(){
 	imag.ImageData());
 }
 
-void init(void){
+void iluminacao(){
+	glLightfv(GL_LIGHT0, GL_POSITION, posicaoLuz);
+
+	/*glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.00f);
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0f);*/
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, corLuzA);
+
+	glLightfv(GL_LIGHT0, GL_SPECULAR, corLuzE);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, corLuzD);
+
+  /* glLightfv(GL_LIGHT0, GL_POSITION, posicaoLuz);
+	 glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, direcaoLuz);
+	 glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, concentracaoLuz);
+	 glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, anguloLuz);
+	 glLightfv(GL_LIGHT0, GL_SPECULAR, corLuz);
+	 glLightfv(GL_LIGHT0, GL_DIFFUSE, corLuz);
+*/}
+
+void init(){
 	glClearColor(BLACK);
 	glShadeModel(GL_SMOOTH);
 	criaDefineTexturas( );
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
+	iluminacao();
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
 }
 
 void resizeWindow(GLsizei w, GLsizei h){
@@ -118,7 +163,7 @@ void resizeWindow(GLsizei w, GLsizei h){
 }
 
 void draw_cube(void){
-	glPushMatrix();
+	 glPushMatrix();
    glutSolidCube (0.5);
 	 glPopMatrix();
 }
@@ -129,6 +174,8 @@ void drawScene(){
 	glBindTexture(GL_TEXTURE_2D,texture[1]);
 	glPushMatrix();
 		glBegin(GL_QUADS);
+			//glColor4f(0.0,0.0,0.0,0.0);
+			glNormal3f(0.0, 1.0, 0.0);
 			glTexCoord2f(0.0f,0.0f); glVertex3i( 0,  0, 0 );
 			glTexCoord2f(10.0f,0.0f); glVertex3i( xC, 0, 0 );
 			glTexCoord2f(10.0f,10.0f); glVertex3i( xC, 0, xC);
@@ -142,6 +189,7 @@ void drawScene(){
 	glBindTexture(GL_TEXTURE_2D,texture[4]);
 	glPushMatrix();
 		glBegin(GL_QUADS);
+		glNormal3f(0.0, 0.0, -1.0);
 			glTexCoord2f(0.0f,0.0f); glVertex3i( 0,  0, xC );
 			glTexCoord2f(1.0f,0.0f); glVertex3i( xC, 0, xC );
 			glTexCoord2f(1.0f,1.0f); glVertex3i( xC, xC, xC);
@@ -154,6 +202,7 @@ void drawScene(){
 	glBindTexture(GL_TEXTURE_2D,texture[2]);
 	glPushMatrix();
 		glBegin(GL_QUADS);
+			glNormal3f(0.0, 0.0, 1.0);
 			glTexCoord2f(0.0f,0.0f); glVertex3i( 0,  0, 0 );
 			glTexCoord2f(1.0f,0.0f); glVertex3i( xC, 0, 0 );
 			glTexCoord2f(1.0f,1.0f); glVertex3i( xC, xC, 0);
@@ -166,6 +215,7 @@ void drawScene(){
 	glBindTexture(GL_TEXTURE_2D,texture[3]);
 	glPushMatrix();
 		glBegin(GL_QUADS);
+			glNormal3f(1.0, 0.0, 0.0);
 			glTexCoord2f(0.0f,0.0f); glVertex3i( 0,  0, 0 );
 			glTexCoord2f(1.0f,0.0f); glVertex3i( 0, 0, xC );
 			glTexCoord2f(1.0f,1.0f); glVertex3i( 0, xC, xC);
@@ -215,24 +265,34 @@ void display(void){
 	// Objectos
 	//cubo 1
 	glPushMatrix();
-	glColor4f(LARANJA);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, rubyDiffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, rubySpecular );
+	glMaterialf(GL_FRONT, GL_SHININESS, rubyShininess);
+	//glColor4f(VERDE);
 	glTranslatef(19.75,1,5+obsP[1]-obsP[2]);
 	draw_cube();
 	glPopMatrix();
 
 	//cubo 2
 	glPushMatrix();
-	glColor4f(AMARELO);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, rubyDiffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, rubySpecular);
+	glMaterialf(GL_FRONT, GL_SHININESS, rubyShininess);
+	//glColor4f(LARANJA);
 	glTranslatef(19.75,1,15+obsP[3]-obsP[4]);
 	draw_cube();
 	glPopMatrix();
 
 	//bola
 	glPushMatrix();
-	glColor4f(BLACK);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, pretoDiffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, pretoSpecular);
+	glMaterialf(GL_FRONT, GL_SHININESS, pretoShininess);
+//	glColor4f(VERMELHO);
 	glTranslatef(ball_position,0.5,10);
 	glutSolidSphere(0.25,20,20);
 	glPopMatrix();
+
 	drawScene();
 	ball_movement();
 
@@ -243,6 +303,39 @@ void display(void){
 void keyboard(unsigned char key, int x, int y){
 
 	switch (key) {
+ 	case'1':
+		if(light){
+			glDisable(GL_LIGHT0);
+			light=0;
+			glutPostRedisplay();
+		}
+		else{
+			glEnable(GL_LIGHT0);
+			light=1;
+			glutPostRedisplay();
+		}
+	break;
+
+/*case 'o':
+case 'O':
+	 if(corLuz[0]<10){
+		 corLuz[0]+=0.25;
+		 corLuz[1]+=0.25;
+		 corLuz[2]+=0.25;
+	 }
+	 glutPostRedisplay();
+	 break;
+
+ case 'p':
+ case 'P':
+	 if(corLuz[0]>0.25){
+		 corLuz[0]-=0.25;
+		 corLuz[1]-=0.25;
+		 corLuz[2]-=0.25;
+	 }
+	 glutPostRedisplay();
+	 break;*/
+
 	// Obj 1 anda para a esquerda
 	case 'A':
 	case 'a':
@@ -283,7 +376,6 @@ void keyboard(unsigned char key, int x, int y){
 		exit(0);
 		break;
   }
-
 	glutPostRedisplay();
 }
 
@@ -291,6 +383,7 @@ int main(int argc, char** argv){
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
 	glutInitWindowSize (wScreen, hScreen);
+	glEnable(GL_NORMALIZE);
 	glutInitWindowPosition (100, 100);
 	glutCreateWindow ("----------------------------- SQUASH -----------------------------                 Maria Filipa Rosa e Jorge Araujo");
 	init();
