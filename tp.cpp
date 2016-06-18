@@ -1,16 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-
 // INCLUDES MARIA
-#include <GL/glut.h>
+/*#include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-
+*/
 //INCLUDES JORGE
-/*#include <OpenGL/gl.h>
+#include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
-#include <GLUT/glut.h>*/
+#include <GLUT/glut.h>
 
 #include "RgbImage.h"
 
@@ -23,20 +22,27 @@
 #define WHITE    1.0, 1.0, 1.0, 1.0
 #define BLACK    0.0, 0.0, 0.0, 1.0
 #define GRAY     0.9, 0.92, 0.29, 1.0
-#define PI			 3.14159
+#define PI		 3.14159
 
 // Sistema Coordenadas
 GLfloat   xC=20.0, yC=20.0, zC=30.0;
 GLfloat   wScreen=800.0, hScreen=600.0;
 GLfloat   speed = 0.1;
-GLfloat   ball_position = 17;
+GLfloat   ball_position_x = 17;
+GLfloat 	ball_position_z = 10;
+GLfloat 	ball_position_y;
+GLfloat   cube1_position_x;
+GLfloat   cube1_position_z;
+GLfloat   jump_coordinate;
 GLint     hit = 0;
 GLfloat  	inc   = 0.5;
+GLint     jump = 0;
 
 // Observador
 GLint    defineView=0;
 GLint    defineProj=1;
-GLfloat  obsP[4] ;
+GLfloat  obsP[5];
+
 
 //iluminacao
 int light=1;
@@ -60,10 +66,13 @@ GLfloat pretoDiffuse[]={0.01,0.01,0.01,1};
 GLfloat pretoSpecular[]={0.01,0.01,0.01};
 GLfloat pretoShininess=0;
 
+
+
 // Texturas
 GLuint  texture[10];
 GLuint  tex;
 RgbImage imag;
+
 
 void criaDefineTexturas(){
 	// Chao y=0
@@ -80,7 +89,7 @@ void criaDefineTexturas(){
 		imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
 		imag.ImageData());
 
-	// Parede lado
+	// Parede principal
 	glGenTextures(1, &texture[2]);
  	glBindTexture(GL_TEXTURE_2D, texture[2]);
  	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_LINEAR);
@@ -143,7 +152,9 @@ void iluminacao(){
 	 glLightfv(GL_LIGHT0, GL_DIFFUSE, corLuz);
 */}
 
-void init(){
+
+void init(void){
+	glEnable(GL_NORMALIZE);
 	glClearColor(BLACK);
 	glShadeModel(GL_SMOOTH);
 	criaDefineTexturas( );
@@ -163,7 +174,7 @@ void resizeWindow(GLsizei w, GLsizei h){
 }
 
 void draw_cube(void){
-	 glPushMatrix();
+	glPushMatrix();
    glutSolidCube (0.5);
 	 glPopMatrix();
 }
@@ -174,7 +185,7 @@ void drawScene(){
 	glBindTexture(GL_TEXTURE_2D,texture[1]);
 	glPushMatrix();
 		glBegin(GL_QUADS);
-			//glColor4f(0.0,0.0,0.0,0.0);
+		//glColor4f(0.0,0.0,0.0,0.0);
 			glNormal3f(0.0, 1.0, 0.0);
 			glTexCoord2f(0.0f,0.0f); glVertex3i( 0,  0, 0 );
 			glTexCoord2f(10.0f,0.0f); glVertex3i( xC, 0, 0 );
@@ -189,7 +200,7 @@ void drawScene(){
 	glBindTexture(GL_TEXTURE_2D,texture[4]);
 	glPushMatrix();
 		glBegin(GL_QUADS);
-		glNormal3f(0.0, 0.0, -1.0);
+			glNormal3f(0.0, 0.0, -1.0);
 			glTexCoord2f(0.0f,0.0f); glVertex3i( 0,  0, xC );
 			glTexCoord2f(1.0f,0.0f); glVertex3i( xC, 0, xC );
 			glTexCoord2f(1.0f,1.0f); glVertex3i( xC, xC, xC);
@@ -226,17 +237,58 @@ void drawScene(){
 }
 
 void ball_movement(){
-	if(ball_position <= 0){
+	cube1_position_z = 5+obsP[1]-obsP[2];
+	cube1_position_x = 19.75;
+	printf("Ball Coordinates x:%f z:%f Cube x: %f z: %f\n",ball_position_x,ball_position_z, cube1_position_x, cube1_position_z);
+	if(ball_position_x <= 0){
 		hit = 1;
+		glutPostRedisplay();
 	}
-
+ if(hit==1){
+ if((ball_position_x >= cube1_position_x)&&(ball_position_z <= (cube1_position_z + 1) && ball_position_z >= (cube1_position_z - 1) ))
+ {
+	 hit = 0;
+	 glutPostRedisplay();
+ }
+}
+ if(ball_position_z == 1)
+ {
+	 jump = 0;
+ }
 	if(hit==0){
-		ball_position -= speed;
+		ball_position_x -= speed;
+		if(jump == 1)
+		{
+			if(jump_coordinate < 10){
+				jump_coordinate += 0.3;
+			}
+			else
+			{
+				jump = 0;
+			}
+		}
+		else if(jump_coordinate>0.5)
+		{
+			jump_coordinate -= 0.3;
+		}
 		glutPostRedisplay();
 	}
 
 	else if( hit == 1 ){
-		ball_position += speed;
+		ball_position_x += speed;
+		if(jump == 1){
+			  if(jump_coordinate < 10){
+				jump_coordinate += 0.3;
+			}
+			else
+			{
+				jump = 0;
+			}
+		}
+		else if(jump_coordinate>0.5)
+		{
+			jump_coordinate -= 0.3;
+		}
 		glutPostRedisplay();
 	}
 }
@@ -265,34 +317,35 @@ void display(void){
 	// Objectos
 	//cubo 1
 	glPushMatrix();
+	//glColor4f(LARANJA);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, rubyDiffuse);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, rubySpecular );
 	glMaterialf(GL_FRONT, GL_SHININESS, rubyShininess);
 	//glColor4f(VERDE);
-	glTranslatef(19.75,1,5+obsP[1]-obsP[2]);
+	cube1_position_z = 5+obsP[1]-obsP[2];
+	glTranslatef(19.75,1,cube1_position_z);
 	draw_cube();
 	glPopMatrix();
 
 	//cubo 2
 	glPushMatrix();
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, rubyDiffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, rubySpecular);
-	glMaterialf(GL_FRONT, GL_SHININESS, rubyShininess);
-	//glColor4f(LARANJA);
+glMaterialfv(GL_FRONT, GL_SPECULAR, rubySpecular);
+glMaterialf(GL_FRONT, GL_SHININESS, rubyShininess);
+	//glColor4f(AMARELO);
 	glTranslatef(19.75,1,15+obsP[3]-obsP[4]);
 	draw_cube();
 	glPopMatrix();
 
 	//bola
 	glPushMatrix();
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, pretoDiffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, pretoSpecular);
-	glMaterialf(GL_FRONT, GL_SHININESS, pretoShininess);
-//	glColor4f(VERMELHO);
-	glTranslatef(ball_position,0.5,10);
+	//glColor4f(BLACK);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, yellowRubberDiffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, yellowRubberSpecular);
+	glMaterialf(GL_FRONT, GL_SHININESS, yellowRubberShininess);
+	glTranslatef(ball_position_x,jump_coordinate,ball_position_z);
 	glutSolidSphere(0.25,20,20);
 	glPopMatrix();
-
 	drawScene();
 	ball_movement();
 
@@ -303,7 +356,7 @@ void display(void){
 void keyboard(unsigned char key, int x, int y){
 
 	switch (key) {
- 	case'1':
+		case'1':
 		if(light){
 			glDisable(GL_LIGHT0);
 			light=0;
@@ -315,7 +368,13 @@ void keyboard(unsigned char key, int x, int y){
 			glutPostRedisplay();
 		}
 	break;
-
+	case ' ':
+	{
+		if(jump==0){
+			jump = 1;
+		}
+	break;
+}
 /*case 'o':
 case 'O':
 	 if(corLuz[0]<10){
@@ -376,6 +435,7 @@ case 'O':
 		exit(0);
 		break;
   }
+
 	glutPostRedisplay();
 }
 
@@ -383,7 +443,6 @@ int main(int argc, char** argv){
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
 	glutInitWindowSize (wScreen, hScreen);
-	glEnable(GL_NORMALIZE);
 	glutInitWindowPosition (100, 100);
 	glutCreateWindow ("----------------------------- SQUASH -----------------------------                 Maria Filipa Rosa e Jorge Araujo");
 	init();
