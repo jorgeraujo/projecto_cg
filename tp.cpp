@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 // INCLUDES MARIA
 /*#include <GL/glut.h>
 #include <GL/gl.h>
@@ -27,13 +28,15 @@
 // Sistema Coordenadas
 GLfloat   xC=20.0, yC=20.0, zC=30.0;
 GLfloat   wScreen=800.0, hScreen=600.0;
-GLfloat   speed = 0.1;
-GLfloat   ball_position_x = 17;
+GLfloat   ball_speed_x = 0.09;
+GLfloat   ball_speed_z;
+GLfloat   ball_position_x = 10;
 GLfloat 	ball_position_z = 10;
 GLfloat 	ball_position_y;
 GLfloat   cube1_position_x;
 GLfloat   cube1_position_z;
 GLfloat   jump_coordinate;
+GLfloat   jump_speed = 0.20;
 GLint     hit = 0;
 GLfloat  	inc   = 0.5;
 GLint     jump = 0;
@@ -237,61 +240,62 @@ void drawScene(){
 }
 
 void ball_movement(){
-	cube1_position_z = 5+obsP[1]-obsP[2];
+  cube1_position_z = 5+obsP[1]-obsP[2];
 	cube1_position_x = 19.75;
-	printf("Ball Coordinates x:%f z:%f Cube x: %f z: %f\n",ball_position_x,ball_position_z, cube1_position_x, cube1_position_z);
-	if(ball_position_x <= 0){
-		hit = 1;
-		glutPostRedisplay();
-	}
- if(hit==1){
- if((ball_position_x >= cube1_position_x)&&(ball_position_z <= (cube1_position_z + 1) && ball_position_z >= (cube1_position_z - 1) ))
- {
-	 hit = 0;
-	 glutPostRedisplay();
- }
-}
- if(ball_position_z == 1)
- {
-	 jump = 0;
- }
-	if(hit==0){
-		ball_position_x -= speed;
-		if(jump == 1)
-		{
-			if(jump_coordinate < 10){
-				jump_coordinate += 0.3;
-			}
-			else
-			{
-				jump = 0;
-			}
-		}
-		else if(jump_coordinate>0.5)
-		{
-			jump_coordinate -= 0.3;
-		}
+	/* caso a bola bata na parede de trás ou na da frente ( a direito )*/
+	if(ball_position_x <= 0.1 || ball_position_x >= 19.9 ){
+		ball_speed_x = ball_speed_x * -1;
+		//caso bata com angulo atrás ou à frente
+
+		printf("Bateu nas paredes frontais\n" );
 		glutPostRedisplay();
 	}
 
-	else if( hit == 1 ){
-		ball_position_x += speed;
-		if(jump == 1){
-			  if(jump_coordinate < 10){
-				jump_coordinate += 0.3;
-			}
-			else
-			{
-				jump = 0;
-			}
-		}
-		else if(jump_coordinate>0.5)
-		{
-			jump_coordinate -= 0.3;
-		}
-		glutPostRedisplay();
+	//caso bata nas paredes laterais
+	if(ball_position_z >= 20 || ball_position_z <= 0)
+	{
+
+		ball_speed_z = ball_speed_z * -1;
+			printf("Bateu nas paredes de laterais\n" );
 	}
+
+	//salto da bola
+			if(jump == 1)
+				{
+				if(jump_coordinate<5)
+				{
+		  		jump_coordinate += jump_speed;
+		  	}
+			}
+				if(jump_coordinate >= 5)
+				{
+					jump = 0;
+				}
+
+			if(jump == 0)
+			{
+				if(jump_coordinate > 0.5 )
+				{
+				 jump_coordinate -= jump_speed;
+				}
+			}
+   //colisão com os raquetas(cubos)
+	 if(ball_position_x >= cube1_position_x-0.5 )
+	 {
+		 if(ball_position_z <= cube1_position_z + 0.3 && ball_position_z >= cube1_position_z - 0.3 )
+		 {
+			 ball_speed_x = ball_speed_x * -1;
+			 printf("BATEU NO CUBO\n");
+		 }
+	 }
+
+
+			//actualização
+			ball_position_x += ball_speed_x;
+			ball_position_z += ball_speed_z;
+		  glutPostRedisplay();
 }
+
 
 void display(void){
 	// Apagar
@@ -348,6 +352,8 @@ glMaterialf(GL_FRONT, GL_SHININESS, rubyShininess);
 	glPopMatrix();
 	drawScene();
 	ball_movement();
+
+	drawBitmapText("Score",5,5,1);
 
 	glutSwapBuffers();
 }
@@ -440,6 +446,12 @@ case 'O':
 }
 
 int main(int argc, char** argv){
+	srand(time(NULL));
+	int r = rand()%4000 - 2000; //this produces numbers between -2000 - +2000
+  float random_num = r/10000.0;
+	printf("ball_speed_z : %f\n",random_num);
+	ball_speed_z = random_num;
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
 	glutInitWindowSize (wScreen, hScreen);
