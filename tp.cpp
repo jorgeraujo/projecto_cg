@@ -5,14 +5,14 @@
 #include <time.h>
 
 // INCLUDES MARIA
-#include <GL/glut.h>
+/*#include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-
+*/
 //INCLUDES JORGE
-/*#include <OpenGL/gl.h>
+#include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
-#include <GLUT/glut.h>*/
+#include <GLUT/glut.h>
 
 #include "RgbImage.h"
 
@@ -36,6 +36,8 @@ GLfloat   ball_speed_z;
 GLfloat   ball_position_x = 10;
 GLfloat 	ball_position_z = 10;
 GLfloat 	ball_position_y;
+GLfloat aux_ball_speed_x;
+GLfloat aux_ball_speed;
 GLfloat   cube1_position_x;
 GLfloat   cube1_position_z;
 GLint     hit = 0;
@@ -477,7 +479,36 @@ void keyboard(unsigned char key, int x, int y){
 	case 27:
 		exit(0);
 		break;
+
+		case 'p':
+		case 'P':
+		{
+			if(ball_speed_z!=0)
+				{
+	 	aux_ball_speed = ball_speed_z;
+ 			}
+		if(pause_game == 0){
+
+		 if(ball_speed_z !=0 )
+		 {
+			 aux_ball_speed = ball_speed_z;
+			 aux_ball_speed_x = ball_speed_x;
+		 }
+		ball_speed_x = 0;
+			ball_speed_z = 0;
+			pause_game = 1;
+		}
+
+		else
+		{
+			ball_speed_x = aux_ball_speed_x;
+			ball_speed_z = aux_ball_speed;
+			pause_game = 0;
+		}
+	 break;
+ 	}
   }
+
 
 	glutPostRedisplay();
 }
