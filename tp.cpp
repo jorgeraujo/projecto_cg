@@ -1,16 +1,17 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include <time.h>
 // INCLUDES MARIA
-/*#include <GL/glut.h>
+#include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-*/
+
 //INCLUDES JORGE
-#include <OpenGL/gl.h>
+/*#include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
-#include <GLUT/glut.h>
+#include <GLUT/glut.h>*/
 
 #include "RgbImage.h"
 
@@ -28,6 +29,7 @@
 // Sistema Coordenadas
 GLfloat   xC=20.0, yC=20.0, zC=30.0;
 GLfloat   wScreen=800.0, hScreen=600.0;
+GLfloat   speed = 0.1;
 GLfloat   ball_speed_x = 0.09;
 GLfloat   ball_speed_z;
 GLfloat   ball_position_x = 10;
@@ -35,9 +37,11 @@ GLfloat 	ball_position_z = 10;
 GLfloat 	ball_position_y;
 GLfloat   cube1_position_x;
 GLfloat   cube1_position_z;
+GLint     hit = 0;
+GLint 		exit_game=0;
+GLint 		pause_game=0;
 GLfloat   jump_coordinate;
 GLfloat   jump_speed = 0.20;
-GLint     hit = 0;
 GLfloat  	inc   = 0.5;
 GLint     jump = 0;
 
@@ -69,7 +73,9 @@ GLfloat pretoDiffuse[]={0.01,0.01,0.01,1};
 GLfloat pretoSpecular[]={0.01,0.01,0.01};
 GLfloat pretoShininess=0;
 
-
+GLfloat GlassDiffuse []={ 0.1, 0.1, 0.1, 0.3};
+GLfloat GlassSpecular []={ 1, 1, 1};
+GLint GlassShininess = 1;
 
 // Texturas
 GLuint  texture[10];
@@ -166,6 +172,8 @@ void init(void){
 	iluminacao();
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void resizeWindow(GLsizei w, GLsizei h){
@@ -174,6 +182,14 @@ void resizeWindow(GLsizei w, GLsizei h){
 	//glViewport( 0, 0, wScreen,hScreen );
 	//glutReshapeWindow(wScreen,hScreen);
 	glutPostRedisplay();
+}
+
+void writeText(char *string, GLfloat x, GLfloat y, GLfloat z)
+{
+	glColor4d(VERMELHO);
+	glRasterPos3f(x,y,z);
+	while(*string)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, *string++);
 }
 
 void draw_cube(void){
@@ -198,7 +214,7 @@ void drawScene(){
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 
-	// Parede
+	// Parede lado esquerdo
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D,texture[4]);
 	glPushMatrix();
@@ -212,6 +228,7 @@ void drawScene(){
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 
+	//Parede lado direito
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D,texture[2]);
 	glPushMatrix();
@@ -225,6 +242,7 @@ void drawScene(){
 	glPopMatrix();
 		glDisable(GL_TEXTURE_2D);
 
+//parede frente
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D,texture[3]);
 	glPushMatrix();
@@ -239,6 +257,20 @@ void drawScene(){
 	glDisable(GL_TEXTURE_2D);
 }
 
+//parede tras
+void drawScene1(){
+		glPushMatrix();
+			glBegin(GL_QUADS);
+				glColor4f(1.0,1.0,1.0,0.5);
+				glNormal3f(-1.0, 0.0, 0.0);
+				glVertex3i( xC,  0, xC);
+				glVertex3i( xC, 0, 0 );
+				glVertex3i(xC, xC, 0);
+				glVertex3i( xC,  xC,  xC);
+		glEnd();
+	glPopMatrix();
+}
+
 void ball_movement(){
   cube1_position_z = 5+obsP[1]-obsP[2];
 	cube1_position_x = 19.75;
@@ -247,7 +279,7 @@ void ball_movement(){
 		ball_speed_x = ball_speed_x * -1;
 		//caso bata com angulo atrás ou à frente
 
-		printf("Bateu nas paredes frontais\n" );
+		//printf("Bateu nas paredes frontais\n" );
 		glutPostRedisplay();
 	}
 
@@ -256,7 +288,7 @@ void ball_movement(){
 	{
 
 		ball_speed_z = ball_speed_z * -1;
-			printf("Bateu nas paredes de laterais\n" );
+			//printf("Bateu nas paredes de laterais\n" );
 	}
 
 	//salto da bola
@@ -285,7 +317,7 @@ void ball_movement(){
 		 if(ball_position_z <= cube1_position_z + 0.3 && ball_position_z >= cube1_position_z - 0.3 )
 		 {
 			 ball_speed_x = ball_speed_x * -1;
-			 printf("BATEU NO CUBO\n");
+			 //printf("BATEU NO CUBO\n");
 		 }
 	 }
 
@@ -295,7 +327,6 @@ void ball_movement(){
 			ball_position_z += ball_speed_z;
 		  glutPostRedisplay();
 }
-
 
 void display(void){
 	// Apagar
@@ -334,8 +365,8 @@ void display(void){
 	//cubo 2
 	glPushMatrix();
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, rubyDiffuse);
-glMaterialfv(GL_FRONT, GL_SPECULAR, rubySpecular);
-glMaterialf(GL_FRONT, GL_SHININESS, rubyShininess);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, rubySpecular);
+	glMaterialf(GL_FRONT, GL_SHININESS, rubyShininess);
 	//glColor4f(AMARELO);
 	glTranslatef(19.75,1,15+obsP[3]-obsP[4]);
 	draw_cube();
@@ -350,17 +381,32 @@ glMaterialf(GL_FRONT, GL_SHININESS, rubyShininess);
 	glTranslatef(ball_position_x,jump_coordinate,ball_position_z);
 	glutSolidSphere(0.25,20,20);
 	glPopMatrix();
-	drawScene();
-	ball_movement();
 
-	drawBitmapText("Score",5,5,1);
+	//glEnable(GL_BLEND);
+	//glEnable(GL_DEPTH_TEST);
+	//glBlendFunc(GL_SRC_ALPHA,	GL_ONE_MINUS_SRC_ALPHA);
+	drawScene();
+	//glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_BLEND);
+
+	//glDepthMask(GL_FALSE);
+	glPushMatrix();
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, GlassDiffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, GlassSpecular);
+	glMaterialf (GL_FRONT, GL_SHININESS, GlassShininess);
+	drawScene1();
+	glPopMatrix();
+
+	//glDepthMask(GL_TRUE);
+
+	ball_movement();
 
 	glutSwapBuffers();
 }
 
 //EVENTOS
 void keyboard(unsigned char key, int x, int y){
-
+	char* aux;
 	switch (key) {
 		case'1':
 		if(light){
@@ -374,31 +420,26 @@ void keyboard(unsigned char key, int x, int y){
 			glutPostRedisplay();
 		}
 	break;
+
 	case ' ':
-	{
 		if(jump==0){
 			jump = 1;
 		}
 	break;
-}
-/*case 'o':
-case 'O':
-	 if(corLuz[0]<10){
-		 corLuz[0]+=0.25;
-		 corLuz[1]+=0.25;
-		 corLuz[2]+=0.25;
-	 }
-	 glutPostRedisplay();
-	 break;
 
- case 'p':
+/* case 'p':
  case 'P':
-	 if(corLuz[0]>0.25){
-		 corLuz[0]-=0.25;
-		 corLuz[1]-=0.25;
-		 corLuz[2]-=0.25;
-	 }
-	 glutPostRedisplay();
+ 			if(pause_game==0){
+				pause_game=1;
+				aux = (char *)calloc(1, sizeof(char) * 2);
+				strcpy(aux, "PAUSED");
+				writeText(aux, 1.0, 1.0, 1.0);
+				free(aux);
+				glutPostRedisplay();
+			}
+			else{
+				pause_game=0;
+			}
 	 break;*/
 
 	// Obj 1 anda para a esquerda
