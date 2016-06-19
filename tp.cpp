@@ -4,14 +4,16 @@
 #include <math.h>
 #include <time.h>
 // INCLUDES MARIA
+/*
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+*/
 
 //INCLUDES JORGE
-/*#include <OpenGL/gl.h>
+#include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
-#include <GLUT/glut.h>*/
+#include <GLUT/glut.h>
 
 #include "RgbImage.h"
 
@@ -44,6 +46,9 @@ GLfloat   jump_coordinate;
 GLfloat   jump_speed = 0.20;
 GLfloat  	inc   = 0.5;
 GLint     jump = 0;
+GLfloat   aux_ball_speed;
+GLfloat   aux_ball_speed_x;
+
 
 // Observador
 GLint    defineView=0;
@@ -274,9 +279,17 @@ void drawScene1(){
 void ball_movement(){
   cube1_position_z = 5+obsP[1]-obsP[2];
 	cube1_position_x = 19.75;
+	if(ball_speed_z != 0)
+	{
+		aux_ball_speed = ball_speed_z;
+	}
 	/* caso a bola bata na parede de trás ou na da frente ( a direito )*/
 	if(ball_position_x <= 0.1 || ball_position_x >= 19.9 ){
 		ball_speed_x = ball_speed_x * -1;
+		if(ball_speed_z != 0)
+		{
+			aux_ball_speed = ball_speed_z;
+		}
 		//caso bata com angulo atrás ou à frente
 
 		//printf("Bateu nas paredes frontais\n" );
@@ -288,6 +301,10 @@ void ball_movement(){
 	{
 
 		ball_speed_z = ball_speed_z * -1;
+
+		if(ball_speed_z!=0){
+		aux_ball_speed = ball_speed_z;
+	}
 			//printf("Bateu nas paredes de laterais\n" );
 	}
 
@@ -427,20 +444,31 @@ void keyboard(unsigned char key, int x, int y){
 		}
 	break;
 
-/* case 'p':
+ case 'p':
  case 'P':
- 			if(pause_game==0){
-				pause_game=1;
-				aux = (char *)calloc(1, sizeof(char) * 2);
-				strcpy(aux, "PAUSED");
-				writeText(aux, 1.0, 1.0, 1.0);
-				free(aux);
-				glutPostRedisplay();
+ if(ball_speed_z!=0)
+ {
+ 		aux_ball_speed = ball_speed_z;
+	}
+ printf("ball_speed_z: %f\n",aux_ball_speed);
+ if(pause_game == 0){
+
+			if(ball_speed_z !=0 )
+			{
+				aux_ball_speed = ball_speed_z;
+				aux_ball_speed_x = ball_speed_x;
 			}
-			else{
-				pause_game=0;
-			}
-	 break;*/
+ 			ball_speed_x = 0;
+			ball_speed_z = 0;
+			pause_game = 1;
+		}
+		else
+		{
+			ball_speed_x = aux_ball_speed_x;
+			ball_speed_z = aux_ball_speed;
+			pause_game = 0;
+		}
+	 break;
 
 	// Obj 1 anda para a esquerda
 	case 'A':
@@ -491,7 +519,7 @@ int main(int argc, char** argv){
 	int r = rand()%4000 - 2000; //this produces numbers between -2000 - +2000
   float random_num = r/10000.0;
 	printf("ball_speed_z : %f\n",random_num);
-	ball_speed_z = random_num;
+	ball_speed_z =random_num;
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
