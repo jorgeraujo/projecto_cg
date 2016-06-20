@@ -5,14 +5,14 @@
 #include <time.h>
 
 // INCLUDES MARIA
-#include <GL/glut.h>
+/*#include <GL/glut.h>
 #include <GL/gl.h>
-#include <GL/glu.h>
+#include <GL/glu.h>*/
 
 //INCLUDES JORGE
-/*#include <OpenGL/gl.h>
+#include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
-#include <GLUT/glut.h>*/
+#include <GLUT/glut.h>
 
 #include "RgbImage.h"
 
@@ -428,7 +428,78 @@ void display(void){
 	glMaterialfv(GL_FRONT, GL_SPECULAR, vidroE);
 	glMaterialf (GL_FRONT, GL_SHININESS, vidroS);
 	drawScene1();
+	ball_movement();
 	glPopMatrix();
+
+// --------------------- Reflexao (not wotking) //
+/*glEnable(GL_STENCIL_TEST);
+glColorMask(0, 0, 0, 0);
+glDisable(GL_DEPTH_TEST);
+glStencilFunc(GL_ALWAYS, 1, 1);
+glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+//chao
+glEnable(GL_TEXTURE_2D);
+glBindTexture(GL_TEXTURE_2D,texture[1]);
+glPushMatrix();
+	glBegin(GL_QUADS);
+	//glColor4f(0.0,0.0,0.0,0.0);
+		glNormal3f(0.0, 1.0, 0.0);
+		glTexCoord2f(0.0f,0.0f); glVertex3i( 0,  0, 0 );
+		glTexCoord2f(10.0f,0.0f); glVertex3i( xC, 0, 0 );
+		glTexCoord2f(10.0f,10.0f); glVertex3i( xC, 0, xC);
+		glTexCoord2f(0.0f,10.0f); glVertex3i( 0,  0,  xC);
+	glEnd();
+glPopMatrix();
+glDisable(GL_TEXTURE_2D);
+
+glColorMask(1, 1, 1, 1);
+glEnable(GL_DEPTH_TEST);
+glStencilFunc(GL_EQUAL, 1, 1);
+glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+glPushMatrix();
+glScalef(1, -1, 1);
+
+glMaterialfv(GL_FRONT, GL_DIFFUSE, rubyD);
+glMaterialfv(GL_FRONT, GL_SPECULAR, rubyE);
+glMaterialf(GL_FRONT, GL_SHININESS, rubyS);
+cube1_position_z = 5+obsP[1]-obsP[2];
+glTranslatef(19.50,0.5,cube1_position_z);
+draw_cube();
+
+
+//bola
+glPushMatrix();
+glEnable(GL_TEXTURE_2D);
+glBindTexture(GL_TEXTURE_2D, texture_ball[ball_type]);
+glMaterialfv(GL_FRONT, GL_DIFFUSE, amareloD);
+glMaterialfv(GL_FRONT, GL_SPECULAR, amareloE);
+glMaterialf(GL_FRONT, GL_SHININESS, amareloS);
+glTranslatef(ball_position_x,jump_coordinate,ball_position_z);
+glutSolidSphere(0.25,20,20);
+glDisable(GL_TEXTURE_2D);
+glPopMatrix();
+
+drawScene();
+sprintf(text,"Pontuacao: %d",points);
+desenhaTexto(text,10,12,5);
+glPushMatrix();
+glMaterialfv(GL_FRONT, GL_DIFFUSE, vidroD);
+glMaterialfv(GL_FRONT, GL_SPECULAR, vidroE);
+glMaterialf (GL_FRONT, GL_SHININESS, vidroS);
+drawScene1();
+glPopMatrix();
+
+glPopMatrix();
+
+glDisable(GL_STENCIL_TEST);
+glEnable(GL_BLEND);
+glColor4f(1, 1, 1, 0.7f);
+glDisable(GL_BLEND);
+*/
+
+//---------------------
 
 	ball_movement();
 
@@ -437,7 +508,6 @@ void display(void){
 
 //EVENTOS
 void keyboard(unsigned char key, int x, int y){
-	char* aux;
 	switch (key) {
 		case'1':
 		if(light){
@@ -480,11 +550,6 @@ void keyboard(unsigned char key, int x, int y){
 			glutPostRedisplay();
 			break;
 
-	case 'q':
-	case 'Q':
-		defineProj=(defineProj+1)%2;
-		glutPostRedisplay();
-		break;
 
 	case ' ':
 		if(jump==0){
@@ -518,6 +583,11 @@ void keyboard(unsigned char key, int x, int y){
 
 	case 27:
 		exit(0);
+		break;
+
+	case 'q':
+	case 'Q':
+		defineProj=(defineProj+1)%2;
 		break;
 
 		case 'p':
