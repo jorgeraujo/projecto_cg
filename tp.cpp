@@ -305,12 +305,12 @@ void ball_movement(){
 	//salto da bola
 			if(jump == 1)
 				{
-				if(jump_coordinate<5)
+				if(jump_coordinate<7.5)
 				{
 		  		jump_coordinate += jump_speed;
 		  	}
 			}
-				if(jump_coordinate >= 5)
+				if(jump_coordinate >= 7.5	)
 				{
 					jump = 0;
 				}
