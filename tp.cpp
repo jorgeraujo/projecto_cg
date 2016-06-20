@@ -5,14 +5,14 @@
 #include <time.h>
 
 // INCLUDES MARIA
-/*#include <GL/glut.h>
+#include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-*/
+
 //INCLUDES JORGE
-#include <OpenGL/gl.h>
+/*#include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
-#include <GLUT/glut.h>
+#include <GLUT/glut.h>*/
 
 #include "RgbImage.h"
 
@@ -25,7 +25,6 @@
 #define WHITE    1.0, 1.0, 1.0, 1.0
 #define BLACK    0.0, 0.0, 0.0, 1.0
 #define GRAY     0.9, 0.92, 0.29, 1.0
-#define PI		 3.14159
 
 // Sistema Coordenadas
 GLfloat   xC=20.0, yC=20.0, zC=30.0;
@@ -36,8 +35,8 @@ GLfloat   ball_speed_z;
 GLfloat   ball_position_x = 10;
 GLfloat 	ball_position_z = 10;
 GLfloat 	ball_position_y;
-GLfloat aux_ball_speed_x;
-GLfloat aux_ball_speed;
+GLfloat 	aux_ball_speed_x;
+GLfloat 	aux_ball_speed;
 GLfloat   cube1_position_x;
 GLfloat   cube1_position_z;
 GLint     hit = 0;
@@ -73,26 +72,28 @@ GLfloat corLuzA[]={1.0f, 1.0f, 1.0f, 1.0f};
 GLfloat corLuzD[]={1.f, 1.0f, 1.0f, 1.0f};
 GLfloat corLuzE[]={0.2f, 0.2f, 0.2f, 1.0f};
 GLfloat posicaoLuz[] = {0.0, 20.0, 0.0, 1.0};
+GLfloat posicao1[]={ball_position_x, ball_position_y, ball_position_z, 1.0};
 GLfloat direcaoLuz[]={0.0f,1.0f,0.0f};
 GLfloat concentracaoLuz=20.0;
 GLfloat anguloLuz=90.0;
+GLfloat corP[]={1.5f,1.5f,1.5f,1.0f};
 
-GLfloat yellowRubberDiffuse[]={0.5,0.5,0.4,1};
-GLfloat yellowRubberSpecular[]={0.7,0.7,0.04};
-GLfloat yellowRubberShininess=.078125*128;
+GLfloat amareloD[]={0.5,0.5,0.4,1};
+GLfloat amareloE[]={0.7,0.7,0.04};
+GLfloat amareloS=.078125*128;
 
-GLfloat rubyDiffuse[]={0.61424,0.04136,0.04136,1};
-GLfloat rubySpecular[]={0.727811,0.626959,0.626959};
-GLfloat rubyShininess=0.6*128;
+GLfloat rubyD[]={0.61424,0.04136,0.04136,1};
+GLfloat rubyE[]={0.727811,0.626959,0.626959};
+GLfloat rubyS=0.6*128;
 
-GLfloat pretoDiffuse[]={0.01,0.01,0.01,1};
-GLfloat pretoSpecular[]={0.01,0.01,0.01};
-GLfloat pretoShininess=0;
+GLfloat pretoD[]={0.01,0.01,0.01,1};
+GLfloat pretoE[]={0.01,0.01,0.01};
+GLfloat pretoS=0;
 
 //Transparencia
-GLfloat GlassDiffuse []={ 0.1, 0.1, 0.1, 0.7};
-GLfloat GlassSpecular []={ 1, 1, 1};
-GLint GlassShininess = 1;
+GLfloat vidroD []={ 0.1, 0.1, 0.1, 0.7};
+GLfloat vidroE []={ 1, 1, 1};
+GLint 	vidroS = 1;
 
 // Texturas
 GLuint  texture[10];
@@ -175,6 +176,16 @@ void iluminacao(){
 	glLightfv(GL_LIGHT0, GL_AMBIENT, corLuzA);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, corLuzE);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, corLuzD);
+
+	glLightfv(GL_LIGHT1, GL_POSITION, posicao1);
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, direcaoLuz);
+	glLightf (GL_LIGHT1, GL_SPOT_EXPONENT , concentracaoLuz);
+	glLightf (GL_LIGHT1, GL_SPOT_CUTOFF, anguloLuz);
+	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0f);
+	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.05f);
+	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0f);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, corP);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, corP);
 }
 
 
@@ -188,6 +199,7 @@ void init(void){
 	iluminacao();
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
@@ -210,7 +222,7 @@ void writeText(char *string, GLfloat x, GLfloat y, GLfloat z)
 
 void draw_cube(void){
 	glPushMatrix();
-   glutSolidCube (0.5);
+   glutSolidCube (1);
 	 glPopMatrix();
 }
 
@@ -308,10 +320,7 @@ void ball_movement(){
 		}
 
 		//caso bata com angulo atrás ou à frente
-
 		//printf("Bateu nas paredes frontais\n" );
-
-
 
 	//caso bata nas paredes laterais
 	if(ball_position_z >= 20 || ball_position_z <= 0)
@@ -391,11 +400,11 @@ void display(void){
 	// Objectos
 	//cubo 1
 	glPushMatrix();
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, rubyDiffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, rubySpecular );
-	glMaterialf(GL_FRONT, GL_SHININESS, rubyShininess);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, rubyD);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, rubyE);
+	glMaterialf(GL_FRONT, GL_SHININESS, rubyS);
 	cube1_position_z = 5+obsP[1]-obsP[2];
-	glTranslatef(19.75,0.25,cube1_position_z);
+	glTranslatef(19.50,0.5,cube1_position_z);
 	draw_cube();
 	glPopMatrix();
 
@@ -403,9 +412,9 @@ void display(void){
 	glPushMatrix();
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texture_ball[ball_type]);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, yellowRubberDiffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, yellowRubberSpecular);
-	glMaterialf(GL_FRONT, GL_SHININESS, yellowRubberShininess);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, amareloD);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, amareloE);
+	glMaterialf(GL_FRONT, GL_SHININESS, amareloS);
 	glTranslatef(ball_position_x,jump_coordinate,ball_position_z);
 	glutSolidSphere(0.25,20,20);
 	glDisable(GL_TEXTURE_2D);
@@ -415,9 +424,9 @@ void display(void){
 	sprintf(text,"Pontuacao: %d",points);
 	desenhaTexto(text,10,12,5);
 	glPushMatrix();
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, GlassDiffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, GlassSpecular);
-	glMaterialf (GL_FRONT, GL_SHININESS, GlassShininess);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, vidroD);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, vidroE);
+	glMaterialf (GL_FRONT, GL_SHININESS, vidroS);
 	drawScene1();
 	glPopMatrix();
 
