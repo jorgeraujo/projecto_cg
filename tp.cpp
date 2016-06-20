@@ -64,6 +64,7 @@ GLint 	 upY=1;
 GLint 	 upZ=0;
 GLint    defineView=0;
 GLint    defineProj=1;
+GLint    points = 0;
 GLfloat  obsP[5];
 
 //iluminacao
@@ -98,6 +99,9 @@ GLuint  texture[10];
 GLuint  texture_ball[3];
 GLuint  tex;
 RgbImage imag;
+
+//Texto
+char text[30];
 
 void criaDefineTexturas(){
 	// Chao y=0
@@ -286,13 +290,28 @@ void ball_movement(){
   cube1_position_z = 5+obsP[1]-obsP[2];
 	cube1_position_x = 19.75;
 	/* caso a bola bata na parede de trás ou na da frente ( a direito )*/
-	if(ball_position_x <= 0.1 || ball_position_x >= 19.9 ){
-		ball_speed_x = ball_speed_x * -1;
+	if(ball_position_x <= 0.1){
+		 if(jump_coordinate > 5)
+		 {
+			 points++;
+			}
+			ball_speed_x = ball_speed_x * -1;
+			 glutPostRedisplay();
+
+				 }
+
+		if(ball_position_x >= 19.9 )
+		{
+			points--;
+			ball_speed_x = ball_speed_x * -1;
+				glutPostRedisplay();
+		}
+
 		//caso bata com angulo atrás ou à frente
 
 		//printf("Bateu nas paredes frontais\n" );
-		glutPostRedisplay();
-	}
+
+
 
 	//caso bata nas paredes laterais
 	if(ball_position_z >= 20 || ball_position_z <= 0)
@@ -335,6 +354,17 @@ void ball_movement(){
 			ball_position_x += ball_speed_x;
 			ball_position_z += ball_speed_z;
 		  glutPostRedisplay();
+}
+
+void desenhaTexto(char *string, GLfloat x, GLfloat y, GLfloat z)
+{
+glPushMatrix();
+glRasterPos3f(x,y,z);
+while(*string){
+	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *string++);
+  	}
+		glRotatef(90,1,1,1);
+glPopMatrix();
 }
 
 void display(void){
@@ -382,7 +412,8 @@ void display(void){
 	glPopMatrix();
 
 	drawScene();
-
+	sprintf(text,"Pontuacao: %d",points);
+	desenhaTexto(text,10,12,5);
 	glPushMatrix();
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, GlassDiffuse);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, GlassSpecular);
@@ -494,9 +525,16 @@ void keyboard(unsigned char key, int x, int y){
 			 aux_ball_speed = ball_speed_z;
 			 aux_ball_speed_x = ball_speed_x;
 		 }
-		ball_speed_x = 0;
+		   ball_speed_x = 0;
 			ball_speed_z = 0;
 			pause_game = 1;
+			glPushMatrix();
+			sprintf(text,"PAUSA");
+			glColor3f(1,0,0);
+			glRotatef(90,0,1,0);
+  writeText(text,10,10 ,10);
+ 		glPopMatrix();
+		glutPostRedisplay();
 		}
 
 		else
